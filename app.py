@@ -587,19 +587,7 @@ if page == "Predict Churn":
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("""
-        <div style='background-color:#1a1a2e; border-radius:10px;
-        padding:20px 25px; margin:15px 0; text-align:center;'>
-            <p style='color:white; font-size:0.95rem; margin:0; line-height:1.8;'>
-                📊 <strong>Global Finding:</strong>
-                Customers with <strong>month-to-month contracts</strong> and
-                <strong>high monthly charges</strong> are most likely to churn.
-                Offering <strong>annual contract discounts</strong> and
-                <strong>loyalty pricing</strong> are the two most effective
-                retention strategies for this telecom company.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.info("""📊 Global Finding: Customers with month-to-month contracts and high monthly charges are most likely to churn. Offering annual contract discounts and loyalty pricing programs are the two most effective retention strategies for this telecom company.""")
 
 # ─────────────────────────────────────────
 # PAGE 2 — EDA CHARTS
