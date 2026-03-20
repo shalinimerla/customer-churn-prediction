@@ -370,91 +370,147 @@ if page == "Predict Churn":
                 input_df[col] = le.transform(input_df[col])
 
         prob = model.predict_proba(input_df)[0][1]
-        percentage = round(prob * 100, 8)
+        percentage = round(prob * 100, 2)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── RESULT BOX ──
+        if prob >= 0.5:
+            st.markdown(f"""
+            <div class='churn-box' style='text-align:center; padding:30px;'>
+                <h2 style='color:#e63946; margin:0;'>⚠️ This customer is likely to CHURN</h2>
+                <h1 style='color:#e63946; font-size:3.5rem; margin:10px 0;'>{percentage}%</h1>
+                <p style='color:#1a1a2e; font-size:1.1rem; margin:0;'>Churn Probability</p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class='safe-box' style='text-align:center; padding:30px;'>
+                <h2 style='color:#2ecc71; margin:0;'>✅ This customer is NOT likely to churn</h2>
+                <h1 style='color:#2ecc71; font-size:3.5rem; margin:10px 0;'>{percentage}%</h1>
+                <p style='color:#1a1a2e; font-size:1.1rem; margin:0;'>Churn Probability</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── RISK LEVEL ──
+        st.markdown("""
+        <div style='background-color:white; border-radius:10px;
+        padding:15px 20px; margin:10px 0;
+        box-shadow:0 2px 8px rgba(0,0,0,0.1);'>
+            <h3 style='color:#1a1a2e; margin:0;'>🎯 Risk Level</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if prob >= 0.70:
+            st.error(f"🔴 HIGH RISK — Churn Probability: {percentage}%  |  Immediate action required!")
+        elif prob >= 0.40:
+            st.warning(f"🟡 MEDIUM RISK — Churn Probability: {percentage}%  |  Monitor and engage soon")
+        else:
+            st.success(f"🟢 LOW RISK — Churn Probability: {percentage}%  |  Customer is satisfied")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── RECOMMENDATIONS ──
+        st.markdown("""
+        <div style='background-color:white; border-radius:10px;
+        padding:15px 20px; margin:10px 0;
+        box-shadow:0 2px 8px rgba(0,0,0,0.1);'>
+            <h3 style='color:#1a1a2e; margin:0;'>💡 Recommendations</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
         if prob >= 0.40:
-            st.markdown(f"""
-            <div class='churn-box'>
-                <strong>⚠️ This customer is likely to be churned!!</strong>
-                &nbsp;&nbsp; Confidence: [{percentage}]
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class='safe-box'>
-                <strong>✅ This customer is NOT likely to churn.</strong>
-                &nbsp;&nbsp; Confidence: [{percentage}]
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("---")
-        st.markdown("### 🎯 Risk Level")
-        if prob >= 0.70:
-            st.error(f"🔴 HIGH RISK — {round(percentage, 2)}% chance of churning")
-        elif prob >= 0.40:
-            st.warning(f"🟡 MEDIUM RISK — {round(percentage, 2)}% chance of churning")
-        else:
-            st.success(f"🟢 LOW RISK — {round(percentage, 2)}% chance of churning")
-
-        st.markdown("---")
-        st.markdown("### 💡 Recommendations")
-
-        if prob >= 0.5:
             if contract == "Month-to-month":
                 st.markdown("""
                 <div class='rec-box'>
-                    <strong>📋 Contract Strategy</strong><br>
-                    Month-to-month contract has 43% churn rate.
-                    Offer discount to switch to annual or two year contract.
+                    <strong>📋 Switch to Annual Contract</strong><br>
+                    Month-to-month customers churn 43% of the time vs only 3% for two year contracts.
+                    Offer 2 months free or a 15% discount to switch to an annual plan immediately.
                 </div>
                 """, unsafe_allow_html=True)
-            if tech_support == "No":
+            if tech_support == "No" or tech_support == "No internet service":
                 st.markdown("""
                 <div class='rec-box'>
-                    <strong>🛠️ Tech Support</strong><br>
-                    Customers without tech support churn 41% of the time.
-                    Offer free basic tech support to retain this customer.
+                    <strong>🛠️ Bundle Free Tech Support</strong><br>
+                    Customers without tech support churn 41% vs 15% with support.
+                    Add basic tech support to this customer's plan at no extra cost.
                 </div>
                 """, unsafe_allow_html=True)
             if monthly_charges > 65:
-                st.markdown("""
+                st.markdown(f"""
                 <div class='rec-box'>
-                    <strong>💰 Pricing Strategy</strong><br>
-                    Customer pays above average monthly charges.
-                    Offer a loyalty discount of 10 to 20 percent.
+                    <strong>💰 Offer Loyalty Discount</strong><br>
+                    This customer pays ${monthly_charges}/month which is above the average $65.
+                    Offer a 10-20% loyalty discount to reduce financial pressure and prevent churn.
                 </div>
                 """, unsafe_allow_html=True)
             if tenure < 12:
-                st.markdown("""
+                st.markdown(f"""
                 <div class='rec-box'>
-                    <strong>🎁 New Customer Program</strong><br>
-                    New customer with less than 12 months tenure.
-                    Enroll in welcome loyalty program with bonus services.
+                    <strong>🎁 New Customer Welcome Program</strong><br>
+                    This customer has only been with the company for {tenure} months.
+                    Enroll them in a 6-month welcome program with bonus data and free calls.
                 </div>
                 """, unsafe_allow_html=True)
             if senior == "Yes":
                 st.markdown("""
                 <div class='rec-box'>
-                    <strong>👴 Senior Citizen Plan</strong><br>
-                    Senior citizens churn at 41%.
-                    Offer dedicated senior plan with lower charges.
+                    <strong>👴 Senior Citizen Special Plan</strong><br>
+                    Senior citizens churn at 41% vs 23% for non-seniors.
+                    Offer a dedicated senior plan with simplified pricing and dedicated support.
+                </div>
+                """, unsafe_allow_html=True)
+            if internet_service == "Fiber optic":
+                st.markdown(f"""
+                <div class='rec-box'>
+                    <strong>🌐 Fiber Optic Retention Offer</strong><br>
+                    Fiber optic customers churn 41% likely due to high bills.
+                    Offer a speed upgrade or bill reduction to retain this customer.
                 </div>
                 """, unsafe_allow_html=True)
             st.markdown("""
-            <div class='rec-box'>
-                <strong>📞 Immediate Action</strong><br>
-                Contact this customer within 24 hours with a personalized offer.
-                Retaining existing customers costs 5x less than acquiring new ones.
+            <div class='rec-box' style='border-left-color:#e63946;'>
+                <strong>📞 Immediate Outreach Required</strong><br>
+                Contact this customer within 24 hours with a personalized retention offer.
+                Retaining an existing customer costs 5 times less than acquiring a new one.
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown("""
-            <div class='rec-box'>
-                <strong>✅ Customer is Satisfied</strong><br>
-                Low churn probability. Continue providing good service.
-                Consider enrolling in a loyalty rewards program.
+            <div class='rec-box' style='border-left-color:#2ecc71;'>
+                <strong>✅ Customer is Satisfied — No Immediate Action Needed</strong><br>
+                This customer has a low churn probability. Continue providing good service.
+                Consider enrolling them in a loyalty rewards program to maintain long term satisfaction.
             </div>
             """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── CONCLUSION ──
+        st.markdown("""
+        <div style='background-color:white; border-radius:10px;
+        padding:15px 20px; margin:10px 0;
+        box-shadow:0 2px 8px rgba(0,0,0,0.1);'>
+            <h3 style='color:#1a1a2e; margin:0;'>📌 Business Insight</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if prob >= 0.70:
+            conclusion = "This customer is at very high risk of churning. The combination of factors such as contract type, monthly charges and service features strongly indicate dissatisfaction. Immediate retention action is critical."
+        elif prob >= 0.40:
+            conclusion = "This customer shows moderate churn risk. Key factors contributing to this risk should be addressed proactively. A targeted retention offer within the next few days can prevent this customer from leaving."
+        else:
+            conclusion = "This customer is satisfied and unlikely to churn. Their profile indicates long term loyalty. Continue providing quality service and consider rewarding their loyalty with exclusive offers."
+
+        st.markdown(f"""
+        <div style='background-color:#f0f7ff; border-radius:10px;
+        padding:20px; margin:10px 0; border:1px solid #4a90d9;'>
+            <p style='color:#1a1a2e; font-size:1rem;
+            line-height:1.8; margin:0;'>{conclusion}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 # PAGE 2 — EDA CHARTS
