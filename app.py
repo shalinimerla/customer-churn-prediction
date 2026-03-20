@@ -412,103 +412,192 @@ if page == "Predict Churn":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── RECOMMENDATIONS ──
+        # ── RECOMMENDATIONS (Condition Based) ──
         st.markdown("""
         <div style='background-color:white; border-radius:10px;
-        padding:15px 20px; margin:10px 0;
+        padding:18px 25px; margin:15px 0;
         box-shadow:0 2px 8px rgba(0,0,0,0.1);'>
-            <h3 style='color:#1a1a2e; margin:0;'>💡 Recommendations</h3>
+            <h3 style='color:#1a1a2e; margin:0;'>💡 Smart Recommendations</h3>
+            <p style='color:#888888; font-size:13px; margin:5px 0 0 0;'>
+                AI-driven suggestions based on this customer profile
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
         if prob >= 0.40:
+            recs = []
+
+            # Condition 1 - Contract
             if contract == "Month-to-month":
-                st.markdown("""
-                <div class='rec-box'>
-                    <strong>📋 Switch to Annual Contract</strong><br>
-                    Month-to-month customers churn 43% of the time vs only 3% for two year contracts.
-                    Offer 2 months free or a 15% discount to switch to an annual plan immediately.
-                </div>
-                """, unsafe_allow_html=True)
-            if tech_support == "No" or tech_support == "No internet service":
-                st.markdown("""
-                <div class='rec-box'>
-                    <strong>🛠️ Bundle Free Tech Support</strong><br>
-                    Customers without tech support churn 41% vs 15% with support.
-                    Add basic tech support to this customer's plan at no extra cost.
-                </div>
-                """, unsafe_allow_html=True)
+                recs.append({
+                    "icon": "📋",
+                    "title": "Offer Yearly Subscription Discount",
+                    "reason": f"Customer is on a month-to-month contract which has a 43% churn rate.",
+                    "action": "Offer 2 months free or 15% discount to switch to an annual plan. Two year contract customers churn only 3%.",
+                    "color": "#e63946"
+                })
+
+            # Condition 2 - High charges
             if monthly_charges > 65:
-                st.markdown(f"""
-                <div class='rec-box'>
-                    <strong>💰 Offer Loyalty Discount</strong><br>
-                    This customer pays ${monthly_charges}/month which is above the average $65.
-                    Offer a 10-20% loyalty discount to reduce financial pressure and prevent churn.
-                </div>
-                """, unsafe_allow_html=True)
+                recs.append({
+                    "icon": "💰",
+                    "title": "Provide Discount or Bundle Plan",
+                    "reason": f"Customer pays ${monthly_charges}/month which is above the average of $65.",
+                    "action": "Offer a 10-20% loyalty discount or bundle additional services at the same price to improve perceived value.",
+                    "color": "#f39c12"
+                })
+
+            # Condition 3 - No tech support
+            if tech_support == "No" or tech_support == "No internet service":
+                recs.append({
+                    "icon": "🛠️",
+                    "title": "Offer Free Tech Support Trial",
+                    "reason": "Customer does not have tech support. Customers without tech support churn 41% vs 15% with support.",
+                    "action": "Provide 3 months of free tech support trial. Once customers experience it they are much less likely to leave.",
+                    "color": "#4a90d9"
+                })
+
+            # Condition 4 - New customer
             if tenure < 12:
-                st.markdown(f"""
-                <div class='rec-box'>
-                    <strong>🎁 New Customer Welcome Program</strong><br>
-                    This customer has only been with the company for {tenure} months.
-                    Enroll them in a 6-month welcome program with bonus data and free calls.
-                </div>
-                """, unsafe_allow_html=True)
+                recs.append({
+                    "icon": "🎁",
+                    "title": "Enroll in New Customer Welcome Program",
+                    "reason": f"Customer has only been with the company for {tenure} months. New customers are most vulnerable to churning.",
+                    "action": "Enroll in a 6-month welcome program with bonus data, free calls and dedicated onboarding support.",
+                    "color": "#2ecc71"
+                })
+
+            # Condition 5 - Senior citizen
             if senior == "Yes":
-                st.markdown("""
-                <div class='rec-box'>
-                    <strong>👴 Senior Citizen Special Plan</strong><br>
-                    Senior citizens churn at 41% vs 23% for non-seniors.
-                    Offer a dedicated senior plan with simplified pricing and dedicated support.
-                </div>
-                """, unsafe_allow_html=True)
+                recs.append({
+                    "icon": "👴",
+                    "title": "Switch to Senior Citizen Special Plan",
+                    "reason": "Senior citizens churn at 41% compared to 23% for non-seniors.",
+                    "action": "Offer a dedicated senior plan with simplified pricing, lower charges and a dedicated helpline.",
+                    "color": "#9b59b6"
+                })
+
+            # Condition 6 - Fiber optic
             if internet_service == "Fiber optic":
+                recs.append({
+                    "icon": "🌐",
+                    "title": "Fiber Optic Retention Offer",
+                    "reason": "Fiber optic customers churn 41% likely due to high monthly bills.",
+                    "action": "Offer a speed upgrade at the same price or a temporary bill reduction for 3 months.",
+                    "color": "#1abc9c"
+                })
+
+            # Always show this
+            recs.append({
+                "icon": "📞",
+                "title": "Immediate Personal Outreach",
+                "reason": "This customer shows signs of potential churn based on their profile.",
+                "action": "Call this customer within 24 hours with a personalized retention offer. Retaining a customer costs 5x less than acquiring a new one.",
+                "color": "#e63946"
+            })
+
+            for rec in recs:
                 st.markdown(f"""
-                <div class='rec-box'>
-                    <strong>🌐 Fiber Optic Retention Offer</strong><br>
-                    Fiber optic customers churn 41% likely due to high bills.
-                    Offer a speed upgrade or bill reduction to retain this customer.
+                <div style='background-color:white; border-left:5px solid {rec["color"]};
+                border-radius:8px; padding:18px 20px; margin:8px 0;
+                box-shadow:0 2px 6px rgba(0,0,0,0.08);'>
+                    <div style='display:flex; align-items:center; margin-bottom:8px;'>
+                        <span style='font-size:1.3rem; margin-right:10px;'>{rec["icon"]}</span>
+                        <strong style='color:#1a1a2e; font-size:1rem;'>{rec["title"]}</strong>
+                    </div>
+                    <p style='color:#555555; font-size:0.9rem; margin:0 0 6px 0;'>
+                        <em>Why: {rec["reason"]}</em>
+                    </p>
+                    <p style='color:#1a1a2e; font-size:0.95rem; margin:0;'>
+                        ➤ {rec["action"]}
+                    </p>
                 </div>
                 """, unsafe_allow_html=True)
-            st.markdown("""
-            <div class='rec-box' style='border-left-color:#e63946;'>
-                <strong>📞 Immediate Outreach Required</strong><br>
-                Contact this customer within 24 hours with a personalized retention offer.
-                Retaining an existing customer costs 5 times less than acquiring a new one.
-            </div>
-            """, unsafe_allow_html=True)
+
         else:
             st.markdown("""
-            <div class='rec-box' style='border-left-color:#2ecc71;'>
-                <strong>✅ Customer is Satisfied — No Immediate Action Needed</strong><br>
-                This customer has a low churn probability. Continue providing good service.
-                Consider enrolling them in a loyalty rewards program to maintain long term satisfaction.
+            <div style='background-color:white; border-left:5px solid #2ecc71;
+            border-radius:8px; padding:18px 20px; margin:8px 0;
+            box-shadow:0 2px 6px rgba(0,0,0,0.08);'>
+                <div style='display:flex; align-items:center; margin-bottom:8px;'>
+                    <span style='font-size:1.3rem; margin-right:10px;'>✅</span>
+                    <strong style='color:#1a1a2e; font-size:1rem;'>
+                        Customer is Satisfied — No Immediate Action Needed
+                    </strong>
+                </div>
+                <p style='color:#555555; font-size:0.9rem; margin:0 0 6px 0;'>
+                    <em>Why: This customer has a low churn probability based on their profile.</em>
+                </p>
+                <p style='color:#1a1a2e; font-size:0.95rem; margin:0;'>
+                    ➤ Continue providing excellent service and consider enrolling them
+                    in a loyalty rewards program to maintain long term satisfaction.
+                </p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── CONCLUSION ──
+        # ── GLOBAL CONCLUSION ──
         st.markdown("""
         <div style='background-color:white; border-radius:10px;
-        padding:15px 20px; margin:10px 0;
+        padding:18px 25px; margin:15px 0;
         box-shadow:0 2px 8px rgba(0,0,0,0.1);'>
-            <h3 style='color:#1a1a2e; margin:0;'>📌 Business Insight</h3>
+            <h3 style='color:#1a1a2e; margin:0;'>📌 Conclusion & Business Insight</h3>
         </div>
         """, unsafe_allow_html=True)
 
+        # Dynamic conclusion based on customer profile
+        reasons = []
+        if contract == "Month-to-month":
+            reasons.append("month-to-month contract")
+        if monthly_charges > 65:
+            reasons.append(f"high monthly charges of ${monthly_charges}")
+        if tech_support == "No":
+            reasons.append("no tech support")
+        if tenure < 12:
+            reasons.append(f"low tenure of only {tenure} months")
+        if senior == "Yes":
+            reasons.append("senior citizen status")
+        if internet_service == "Fiber optic":
+            reasons.append("fiber optic internet")
+
         if prob >= 0.70:
-            conclusion = "This customer is at very high risk of churning. The combination of factors such as contract type, monthly charges and service features strongly indicate dissatisfaction. Immediate retention action is critical."
+            if reasons:
+                reason_text = ", ".join(reasons)
+                specific = f"Key risk factors identified for this customer include: {reason_text}."
+            else:
+                specific = "Multiple behavioral factors indicate high dissatisfaction."
+            global_insight = f"This customer is at HIGH RISK of churning. {specific} Research shows that customers with month-to-month contracts and high monthly charges are most likely to churn. Immediate intervention is critical — a personalized retention offer within 24 hours can significantly reduce the probability of losing this customer."
         elif prob >= 0.40:
-            conclusion = "This customer shows moderate churn risk. Key factors contributing to this risk should be addressed proactively. A targeted retention offer within the next few days can prevent this customer from leaving."
+            if reasons:
+                reason_text = ", ".join(reasons)
+                specific = f"Contributing risk factors include: {reason_text}."
+            else:
+                specific = "Some behavioral indicators suggest potential dissatisfaction."
+            global_insight = f"This customer shows MODERATE churn risk. {specific} Customers with month-to-month contracts and high charges are statistically most likely to churn in this dataset. A proactive retention offer this week can prevent this customer from leaving."
         else:
-            conclusion = "This customer is satisfied and unlikely to churn. Their profile indicates long term loyalty. Continue providing quality service and consider rewarding their loyalty with exclusive offers."
+            global_insight = "This customer is UNLIKELY TO CHURN based on their profile. Analysis of the IBM Telco dataset shows that customers with long-term contracts, lower monthly charges and active service subscriptions like tech support tend to be the most loyal. Continue providing quality service to maintain this customer's satisfaction."
 
         st.markdown(f"""
         <div style='background-color:#f0f7ff; border-radius:10px;
-        padding:20px; margin:10px 0; border:1px solid #4a90d9;'>
+        padding:25px; margin:10px 0; border:1px solid #4a90d9;
+        max-width:900px;'>
             <p style='color:#1a1a2e; font-size:1rem;
-            line-height:1.8; margin:0;'>{conclusion}</p>
+            line-height:1.9; margin:0;'>{global_insight}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div style='background-color:#1a1a2e; border-radius:10px;
+        padding:20px 25px; margin:15px 0; text-align:center;'>
+            <p style='color:white; font-size:0.95rem; margin:0; line-height:1.8;'>
+                📊 <strong>Global Finding:</strong>
+                Customers with <strong>month-to-month contracts</strong> and
+                <strong>high monthly charges</strong> are most likely to churn.
+                Offering <strong>annual contract discounts</strong> and
+                <strong>loyalty pricing</strong> are the two most effective
+                retention strategies for this telecom company.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
